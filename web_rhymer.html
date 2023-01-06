@@ -1,0 +1,44 @@
+<html>
+  <head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <style>
+      body {
+        background-color: #303030;
+        color: white;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="row">
+        <form>
+          <div class="input-field col s12">
+            <textarea id="input_text" class="materialize-textarea"></textarea>
+            <label for="input_text">Modifiable Text</label>
+          </div>
+          <div class="input-field col s12">
+            <textarea id="read_only_text" class="materialize-textarea" readonly></textarea>
+            <label for="read_only_text">Read Only Text</label>
+          </div>
+<button id="button" class="btn waves-effect waves-light" type="submit" name="action">Submit
+  <i class="material-icons right">send</i>
+</button>
+        </form>
+      </div>
+    </div>
+    <script>
+  const button = document.getElementById('button');
+  const inputText = document.getElementById('input_text');
+  const readOnlyText = document.getElementById('read_only_text');
+
+  button.addEventListener('click', (event) => {
+    event.preventDefault();
+    const inputTextValue = inputText.value;
+    const base64Text = btoa(inputTextValue);
+    readOnlyText.value = base64Text;
+  });
+</script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+  </body>
+</html>
