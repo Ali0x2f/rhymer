@@ -1,5 +1,5 @@
 # import libraries
-import requests
+import request
 import re
 import sys
 import argparse
@@ -17,7 +17,7 @@ def get_ryhmes(word: str, option='rel_rhy', max=100):
     parameter = {}
     parameter[option] = word
     parameter['max'] = max
-    request = requests.get('https://api.datamuse.com/words', parameter)
+    request = request.get('https://api.datamuse.com/words', parameter)
     print(f"checking [{option}] for {word}...")
     rhyme = request.json()
     return [elt['word'] for elt in rhyme]
