@@ -46,7 +46,8 @@
         from js import document
         from js import XMLHttpRequest
         DATAMUSE_API = "https://api.datamuse.com/words?"
-        RHYMEZONE_API = "https://api.rhymezone.com/words?k=rza&arhy=1&"
+        CORS_PROXY = "https://api.codetabs.com/v1/proxy/?quest="
+        RHYMEZONE_API = CORS_PROXY + "https://api.rhymezone.com/words?k=rza&arhy=1&"
         def get_request_to_json(url):
             req = XMLHttpRequest.new()
             req.open("GET", url, False)
