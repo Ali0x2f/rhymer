@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+
+    <title>GET, POST, PUT, DELETE example</title>
+
+    <link rel="icon" type="image/png" href="favicon.png" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <link rel="stylesheet" href="https://pyscript.net/latest/pyscript.css" />
+
+    <script defer src="https://pyscript.net/latest/pyscript.js"></script>
+
+    <style>
+      body {
+        background-color: #505050;
+        color: white;
+      }
+    </style>
+
+  </head>
+
+  <body>
+   <div class="container">
+    <div class="row">
+  <h4 >
+    Rhymer Web test <br>
+    Using PyScript
+    </h4>
+     <div class="input-field col s12" >
+            <textarea id="input_text" class="materialize-textarea"  rows="15"></textarea>
+            <label for="input_text">Input Text</label>
+          </div>
+    <div class="input-field col s12">
+            <textarea id="read_only_text" class="materialize-textarea" rows="15" style="overflow:hidden" readonly></textarea>
+            <label for="read_only_text">Rhymer Result</label>
+          </div>
+    <button id="button" class="btn waves-effect waves-light" py-click="display_to_div()" id="display" >Rhyme !
+    </button>
+    </div>
+    </div>
+    <py-script>
+        import json
+        import re 
+        from js import document
+        from js import XMLHttpRequest
+
+        def get_request_to_json(url):
+            req = XMLHttpRequest.new()
+            req.open("GET", url, False)
+            req.send(None)
+            output = str(req.response)
+            return json.loads(output)
+
+        def get_last_word(sentence: str):
+            """getting last word of a sentence
+
+            Args:
+                sentence (str): _description_
+
+            Returns:
+                _type_: _description_
+            """
+            return re.split(r'\W+', sentence)[-1]
+        
+        def get_ryhmes(word: str, option='rel_rhy', max=100):
+            """ getting all rhyming words from the API
+
+            Args:
+                word (string): word as a string (no \n)
+
+            Returns:
+                list(str): list of words
+            """
+            rhyme = get_request_to_json(f"https://api.datamuse.com/words?{option}={word}&max={max}")
+            #print(f"checking [{option}] for {word}...")
+            return [elt['word'] for elt in rhyme]
+
+        def main(nry=False):
+            output = []
+            i = 0
+            
+            lines = Element("input_text").element.value
+            lines = lines.split('\n')
+            lines = [line  for line in lines if len(line)>1]
+            while len(lines) > 0:
+
+                rhymes = get_ryhmes(get_last_word(lines[0].strip('\n')))
+                output.append([])
+                output[i].append(lines[0])
+                lines.remove(lines[0])
+                lines_swap = lines.copy()
+                for s in lines_swap:
+                    if get_last_word(s.strip('\n')) in rhymes:
+                        lines.remove(s)
+                        output[i].append(s)
+                #print(output)
+                i += 1
+            # sorting based on number of rhyming sentences
+            
+            output.sort(key=len, reverse=True)
+            # output has lines
+
+            # near rhymes section
+            if nry:
+                #print("[INFO] checking near rhymes.")
+                separator = 0
+                for separator, elt in enumerate(output):
+                    if len(elt) == 1:
+                        break
+                multies = output[:separator-1]
+                singles = output[separator:]
+                mul = multies.copy()
+                sin = singles.copy()
+                for single in singles:
+                    get_out = False
+                    single_last_word = get_last_word(single[0].strip('\n'))
+
+                    near_rhymes = get_ryhmes(single_last_word, 'sl', 1000)
+                    for i, multi in enumerate(multies):
+                        if not get_out:
+                            for line in multi:
+                                line_last_word = get_last_word(line.strip('\n'))
+                                for word in near_rhymes:
+                                    if word.endswith(line_last_word):
+                                        mul[i].append(single[0])
+                                        sin.remove(single)
+                                        get_out = True
+                                        break
+                                else:
+                                    continue
+                                break
+                        else:
+                            break
+                output = mul + sin
+                output.sort(key=len, reverse=True)
+            show = ''
+            for lines in output:
+                for line in lines:
+                    show = show + line + '\n'
+                show = show + "\n"
+            txtarea = Element("read_only_text")
+            txtarea.element.value =show
+            
+                #asyncio.ensure_future(main())
+        def display_to_div():
+            main(True)
+
+    </py-script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+    
+  </body>
+</html>
