@@ -64,6 +64,9 @@
             Returns:
                 _type_: _description_
             """
+            sentence = sentence.replace(')', '')
+            sentence = sentence.replace('(', '')
+            sentence = sentence.replace('.', ' ')
             return re.split(r'\W+', sentence)[-1]
         
         def get_ryhmes(word: str, option='rel_rhy', max=100,api_endoint=DATAMUSE_API):
@@ -85,16 +88,17 @@
             
             lines = Element("input_text").element.value
             lines = lines.split('\n')
-            lines = [line  for line in lines if len(line)>1]
+            lines = [line  for line in lines if len(line)>2]
             while len(lines) > 0:
-
-                rhymes = get_ryhmes(get_last_word(lines[0].strip('\n')))
+                last_word  = get_last_word(lines[0].strip('\n'))
+                rhymes = get_ryhmes(last_word)
                 output.append([])
                 output[i].append(lines[0])
                 lines.remove(lines[0])
                 lines_swap = lines.copy()
                 for s in lines_swap:
-                    if get_last_word(s.strip('\n')) in rhymes:
+                    lw = get_last_word(s.strip('\n'))
+                    if lw in rhymes or lw == last_word:
                         lines.remove(s)
                         output[i].append(s)
                 #print(output)
